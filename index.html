@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe de Reparación</title>
+    <link rel="icon" href="images/EMESER.ico" type="image/x-icon">
+    <style>
+        /* Estilos Generales */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f4f8; }
+        .container { width: 90%; max-width: 1100px; padding: 20px; border-radius: 15px; background: #ffffff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+        .header { display: flex; flex-direction: column; align-items: center; border-bottom: 2px solid #d1d5db; padding-bottom: 15px; text-align: center; }
+        .header img { width: 150px; margin-bottom: 10px; }
+        .header h1 { font-size: 32px; color: #2c3e50; }
+        .progress { display: flex; flex-direction: column; align-items: center; margin-top: 20px; }
+        .progress-circle { width: 120px; height: 120px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; position: relative; box-shadow: 0 0 20px rgba(76, 175, 80, 0.3); }
+        .progress-circle::after { content: ""; position: absolute; top: 10px; left: 10px; width: calc(100% - 20px); height: calc(100% - 20px); background-color: #ffffff; border-radius: 50%; z-index: 1; }
+        .progress-text { position: absolute; color: #4CAF50; z-index: 2; }
+        .progress-label { margin-top: 10px; font-size: 18px; font-weight: bold; color: #4CAF50; text-align: center; }
+
+        /* Nuevos estilos para el nombre del cliente y RUT */
+        .client-info { text-align: center; margin-top: 15px; color: #34495e; }
+        .client-name { font-size: 22px; font-weight: bold; color: #2c3e50; }
+        .client-rut { font-size: 18px; color: #7f8c8d; }
+
+        .info, .status { display: flex; flex-direction: column; align-items: center; margin-top: 25px; font-size: 18px; color: #34495e; text-align: center; }
+        .info div, .status div { margin-bottom: 12px; background: #ecf0f1; padding: 10px 15px; border-radius: 8px; width: 100%; max-width: 500px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); justify-content: center; }
+        .info div span, .status div span { width: 100px; font-weight: bold; color: #2c3e50; }
+        .status h2 { font-size: 24px; color: #4CAF50; margin-bottom: 15px; border-left: 4px solid #4CAF50; padding-left: 10px; text-align: center; }
+        .footer { margin-top: 30px; text-align: center; font-size: 14px; color: #7f8c8d; }
+
+        /* Estilo de enlaces */
+        .info a { text-decoration: none; color: #4CAF50; font-weight: bold; pointer-events: none; opacity: 0.5; position: relative; }
+        .info a.active { pointer-events: auto; opacity: 1; }
+
+        /* Estilo de candado en enlaces bloqueados */
+        .info a.locked::after {
+            content: "🔒";
+            font-size: 18px;
+            position: absolute;
+            right: 10px;
+            color: #b0b0b0;
+        }
+    </style>
+</head>
+<body onload="updateProgress()">
+    <div class="container">
+        <div class="header">
+            <a href="https://www.emeser.cl">
+                <img src="images/LOGO EMESER SIN FONDO.png" alt="Emeser Logo">
+            </a>
+            <h1>INFORME DE REPARACIÓN</h1>
+            <div class="progress">
+                <div class="progress-circle" id="progressCircle">
+                    <div class="progress-text" id="progressText">10%</div>
+                </div>
+                <div class="progress-label">PROGRESO</div>
+            </div>
+
+            <!-- Sección de Información del Cliente -->
+            <div class="client-info">
+                <div class="client-name">{{cliente}}</div>
+                <div class="client-rut">RUT: {{rut}}</div>
+            </div>
+        </div>
+
+        <div class="info">
+            <div><a id="link-ingreso" class="locked" href="INGRESO.html"><span>INGRESO DE COMPONENTE</span></a></div>
+            <div><a id="link-evaluacion" class="locked" href="EVALUACION_TECNICA.html"><span>EVALUACION TECNICA</span></a></div>
+            <div><a id="link-orden" class="locked" href="ORDEN_TRABAJO.html"><span>ORDEN DE TRABAJO</span></a></div>
+            <div><a id="link-presupuesto" class="locked" href="PRESUPUESTO.html"><span>PRESUPUESTO</span></a></div>
+            <div><a id="link-protocolo" class="locked" href="PROTOCOLO_PRUEBAS.html"><span>PROTOCOLO DE PRUEBAS</span></a></div>
+        </div>
+
+        <div class="status">
+            <h2>ESTADO</h2>
+            <div><span id="estadoText"></span></div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 EMESER LTDA. Todos los derechos reservados.</p>
+        </div>
+    </div>
+
+    <script>
+        function updateProgress() {
+            // Estado actual (puedes cambiar este valor para ver el progreso)
+            const estado = "1. INGRESO DE COMPONENTE";
+
+            // Pasos con sus respectivos porcentajes
+            const pasos = {
+                "1. INGRESO DE COMPONENTE": { porcentaje: 10, enlaces: ["link-ingreso"] },
+                "2. EVALUACIÓN TÉCNICA": { porcentaje: 30, enlaces: ["link-ingreso", "link-evaluacion"] },
+                "3. ORDEN DE TRABAJO": { porcentaje: 50, enlaces: ["link-ingreso", "link-evaluacion", "link-orden"] },
+                "4. PRESUPUESTO": { porcentaje: 80, enlaces: ["link-ingreso", "link-evaluacion", "link-orden", "link-presupuesto"] },
+                "5. PROTOCOLO DE PRUEBAS": { porcentaje: 100, enlaces: ["link-ingreso", "link-evaluacion", "link-orden", "link-presupuesto", "link-protocolo"] }
+            };
+
+            // Actualizar el progreso según el estado
+            if (pasos[estado]) {
+                const { porcentaje, enlaces } = pasos[estado];
+                document.getElementById("progressText").textContent = `${porcentaje}%`;
+                document.getElementById("progressCircle").style.background = `conic-gradient(#4CAF50 ${porcentaje}%, #e0e0e0 ${porcentaje}% 100%)`;
+                document.getElementById("estadoText").textContent = estado;
+
+                // Bloquear y desbloquear enlaces según el estado
+                document.querySelectorAll('.info a').forEach(link => {
+                    link.classList.add('locked');
+                    link.classList.remove('active');
+                });
+                enlaces.forEach(id => {
+                    const link = document.getElementById(id);
+                    link.classList.remove('locked');
+                    link.classList.add('active');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
